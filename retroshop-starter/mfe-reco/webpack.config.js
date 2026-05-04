@@ -38,7 +38,7 @@ module.exports = {
     new ModuleFederationPlugin({
       name: 'mfeReco',
       filename: 'remoteEntry.js',
-      expose: {
+      exposes: {
         './Reco': './src/components/Recommendations'
       },
       shared: {
