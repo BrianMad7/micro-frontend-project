@@ -16,10 +16,20 @@ function App() {
 
   useEffect(() => {
     // TODO: ecouter les mises a jour du panier pour le badge
-    const unsub = eventBus.on("cart:add", () => {
-      setCartCount((prev) => prev + 1);
+    const unsub = eventBus.on("cart:updated", (cart) => {
+      if (cart) {
+        const cartCount = cart.count;
+        setCartCount(cartCount);
+      }
     });
     return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    const unsubClear = eventBus.on("cart:cleared", () => {
+      setCartCount(0);
+    });
+    return () => unsubClear();
   }, []);
 
   return (
