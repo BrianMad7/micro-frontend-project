@@ -5,19 +5,19 @@ import './Recommendations.css';
 
 function Recommendations() {
   const [recos, setRecos] = useState(PRODUCTS.slice(0, 3));
-
   useEffect(() => {
-    // TODO: adapter les recommandations en fonction du contenu du panier
-    const unsubscribe = eventBus.on('cart:add-item', (product) => {
-      setRecos(prev => prev.filter(p => p.id !== product.id));
-    });
-    
-    return unsubscribe;
+    // Adapter les recommandations en fonction du contenu du panier
+    const unsubscribe = eventBus.on('cart:updated', (cart) => {
+      const inCartIds = new Set((cart.items || []).map(i => i.id));
+      setRecos(PRODUCTS.filter(p => !inCartIds.has(p.id)).slice(0, 3));
+    }, 'Recommendations');
+
+    return () => unsubscribe();
   }, []);
 
   const handleAddReco = (product) => {
-    // TODO: ajouter ce produit au panier (meme evenement que ProductGrid)
-    eventBus.emit('cart:add-item', product);
+    // Ajouter le produit au panier en réutilisant le même événement que ProductGrid
+    eventBus.emit('cart:add', product);
   };
 
   return (
