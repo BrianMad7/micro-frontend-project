@@ -36,8 +36,20 @@ module.exports = {
   },
   plugins: [
     new ModuleFederationPlugin({
-      // TODO: configurer ce MFE pour exposer le composant Cart
-    }),
+      name: 'mfe_cart',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './Cart': './src/components/Cart',
+      },
+      shared: {
+        react: {
+          singleton: true,
+        },
+        'react-dom': {
+          singleton: true,
+        },
+      },
+    }), ,
     new HtmlWebpackPlugin({
       template: './public/index.html',
     }),

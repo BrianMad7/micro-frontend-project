@@ -21,21 +21,36 @@ class EventBus {
     this.listeners = {};
   }
 
+  _getTime() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `[${hours}:${minutes}:${seconds}]`;
+  }
+
   /**
    * S'abonner a un evenement
    * @param {string} event - Nom de l'evenement
    * @param {Function} callback - Fonction a appeler
    * @returns {Function} Fonction pour se desabonner
    */
-  on(event, callback) {
-    if (!this.listeners[event]) {
-      this.listeners[event] = [];
-    }
-    this.listeners[event].push(callback);
+  on(event, callback, subscriberName = 'inconnu') {
+      if (!this.listeners[event]) {
+        this.listeners[event] = [];
+      }
 
-    // Retourne une fonction pour se desabonner facilement
-    return () => this.off(event, callback);
-  }
+      const wrappedCallback = (data) => {
+        console.log(`${this._getTime()} EVENT BUS ↓ ${event} (traite par ${subscriberName})`);
+        callback(data);
+      };
+
+      wrappedCallback.originalCallback = callback;
+      
+      this.listeners[event].push(wrappedCallback);
+
+      return () => this.off(event, callback);
+    }
 
   /**
    * Se desabonner d'un evenement
@@ -44,7 +59,10 @@ class EventBus {
    */
   off(event, callback) {
     if (!this.listeners[event]) return;
-    this.listeners[event] = this.listeners[event].filter(cb => cb !== callback);
+    
+    this.listeners[event] = this.listeners[event].filter(
+      cb => cb.originalCallback !== callback
+    );
   }
 
   /**
@@ -53,11 +71,9 @@ class EventBus {
    * @param {any} data - Donnees a transmettre
    */
   emit(event, data) {
+    console.log(`${this._getTime()} EVENT BUS ↑ ${event}`, data);
+
     if (!this.listeners[event]) return;
-
-    // Log pour debug
-    console.log(`[EventBus] ${event}`, data);
-
     this.listeners[event].forEach(callback => {
       try {
         callback(data);
