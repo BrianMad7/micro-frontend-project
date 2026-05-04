@@ -8,10 +8,16 @@ function Recommendations() {
 
   useEffect(() => {
     // TODO: adapter les recommandations en fonction du contenu du panier
+    const unsubscribe = eventBus.on('cart:add-item', (product) => {
+      setRecos(prev => prev.filter(p => p.id !== product.id));
+    });
+    
+    return unsubscribe;
   }, []);
 
   const handleAddReco = (product) => {
     // TODO: ajouter ce produit au panier (meme evenement que ProductGrid)
+    eventBus.emit('cart:add-item', product);
   };
 
   return (
