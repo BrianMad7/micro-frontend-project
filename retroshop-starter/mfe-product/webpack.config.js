@@ -42,7 +42,7 @@ module.exports = {
       name: 'mfeProduct',
       filename: 'remoteEntry.js',
       exposes: {
-        './ProductList': './src/ProductGrid',
+        './ProductList': './src/components/ProductGrid',
       },
       shared: {
         react: { singleton: true },
