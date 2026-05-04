@@ -8,12 +8,27 @@ function Cart() {
   const total = items.reduce((sum, item) => sum + item.price, 0);
 
   useEffect(() => {
-    // TODO: ecouter les ajouts de produits et mettre a jour le state
+    const unsubscribe = eventBus.on('cart:add', (product) => {
+      setItems((prev) => [
+        ...prev,
+        {
+          ...product,
+          cartId: Date.now() + Math.random(),
+        },
+      ]);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    // TODO: notifier le reste de l'application quand le panier change
-  }, [items]);
+    eventBus.emit('cart:updated', {
+      items,
+      total,
+      count: items.length,
+    });
+  }, [items, total]);
+  
 
   const handleRemove = (cartId) => {
     setItems(prev => prev.filter(item => item.cartId !== cartId));
@@ -21,6 +36,7 @@ function Cart() {
 
   const handleClear = () => {
     setItems([]);
+    eventBus.emit('cart:cleared');
   };
 
   return (
